@@ -27,6 +27,7 @@ def restart_server():
         screen.send_commands("kick @a Server restarting, please come back in a minute.")
         screen.send_commands("stop")
         time.sleep(15)
+        screen.kill()
         start_server()
 
 
@@ -40,6 +41,7 @@ def save_server():
 def check_restart_event():
     if os.path.isfile(restartEventFile):
         restart_server()
+        os.remove(restartEventFile)
 
 
 def main():
