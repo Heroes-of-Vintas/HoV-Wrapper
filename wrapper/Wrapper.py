@@ -1,8 +1,10 @@
-from screenutils import Screen
-from Config import *
 import datetime
-import time
 import os
+import time
+
+from screenutils import Screen
+
+from wrapper.Config import *
 
 
 def start_server(screen):
