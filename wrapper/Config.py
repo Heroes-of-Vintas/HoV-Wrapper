@@ -1,15 +1,15 @@
 # Config file for the hov-wrapper program.
 
-# Full path to the server start script. The script
-# must, at minimum, move to the server directory
-# and start java.
-startScript = "/home/user/server-files/game/start.sh"
 
-# The name to give the screen session running the server.
-# Useful if you are running multiple server sessions.
-#
-# Default: mcserver
-screenName = "mcserver"
+pathToMinecraft = "/home/katie/Documents/Spigot-Test-Servers/1.11.2/"
+
+minecraftExecutable = "spigot.jar"
+
+serverIP = "127.0.0.1"
+
+serverPort = 25565
+
+minecraftArguments = "nogui"
 
 # How often, in second, to check if the server is still
 # up and running.

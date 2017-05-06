@@ -2,77 +2,69 @@ import datetime
 import os
 import time
 
-from screenutils import Screen
-
+from wrapper.Server import Server
 from wrapper.Config import *
 
 
-def start_server(screen):
-    if not screen.exists:
-        os.system("screen -d -S " + screenName + " -m " + startScript)
-    screen.send_commands(startScript)
-
-
-def restart_server(screen):
-    if screen.exists:
-        screen.send_commands("say Server restarting in 60 seconds.")
+def restart_server(server):
+    if server.is_running():
+        server.send_command("say Server restarting in 60 seconds.")
         time.sleep(30)
-        screen.send_commands("say Server restart in 30 seconds.")
+        server.send_command("say Server restart in 30 seconds.")
         time.sleep(15)
-        screen.send_commands("say Server restart in 15 seconds.")
+        server.send_command("say Server restart in 15 seconds.")
         time.sleep(10)
-        screen.send_commands("say Server restart in 5 seconds.")
+        server.send_command("say Server restart in 5 seconds.")
         time.sleep(5)
-        screen.send_commands("save-all")
-        screen.send_commands("kick @a Server restarting, please come back in a minute.")
-        screen.send_commands("stop")
+        server.send_command("kick @a Server restarting, please come back in a minute.")
+        server.stop()
         time.sleep(15)
-        start_server(screen)
+        server.start()
 
 
-def save_server(screen):
-    if screen.exists:
-        print("Saving Server")
-        screen.send_commands("save-all")
+def save_server(server):
+    if server.is_running():
+        server.send_command("save-all")
 
 
-def check_restart_event(screen):
+def check_restart_event(server):
     if os.path.isfile(restartEventFile):
-        restart_server(screen)
+        restart_server(server)
         os.remove(restartEventFile)
+
+
+def get_formatted_time():
+    current_time = datetime.datetime.now()
+    current_time_formatted = current_time.strftime('%H:%M')
+    return current_time_formatted
 
 
 def main():
     has_started_before = False
     save_counter = 0
-    screen = Screen(screenName)
+    server = Server(serverIP, serverPort)
 
     while True:
-        if screen.exists:
-            print("Server is running")
+        if server.is_running():
             if autoSave:
                 if save_counter == autoSaveFrequency:
-                    save_server(screen)
+                    server.send_command("save-all")
                     save_counter = 0
                 else:
                     save_counter += serverCheckInterval
             if autoRestart:
-                current_time = datetime.datetime.now()
-                current_time_formatted = current_time.strftime('%H:%M')
-                if current_time_formatted in autoRestartTime:
-                    restart_server(screen)
+                if get_formatted_time() in autoRestartTime:
+                    restart_server(server)
                     save_counter = 0
             if checkRestartEvent:
-                check_restart_event(screen)
+                check_restart_event(server)
         else:
-            if not has_started_before:
-                print("Starting the server")
-                start_server(screen)
-                has_started_before = True
+            if has_started_before:
+                server.start()
             else:
-                print("The server crashed, restarting")
-                start_server(screen)
+                server.start()
 
         time.sleep(serverCheckInterval)
 
-main()
+if __name__ == "__main__":
+    main()
